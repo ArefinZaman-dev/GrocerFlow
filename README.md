@@ -100,7 +100,7 @@ GrocerFlow/
 ### 1) Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/GrocerFlow.git
+git clone https://github.com/ArefinZaman-dev/GrocerFlow.git
 cd GrocerFlow
 ```
 
