@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Products · GrocerFlow{% endblock %}
+{% block content %}
+
+<div class="gf-pagehead">
+    <div>
+        <h2>Products</h2>
+        <div class="sub">Manage your inventory items.</div>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.product_new') }}">➕ New Product</a>
+</div>
+
+<form class="filter-bar" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search by name or SKU...">
+    <label class="d-flex align-items-center gap-2" style="color:#111827; font-weight:700;">
+        <input type="checkbox" value="1" id="low" name="low" {% if only_low %}checked{% endif %}>
+        Low stock only
+    </label>
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+
+    {% if q or only_low %}
+        <a class="btn btn-link" href="{{ url_for('main.products') }}">Clear</a>
+    {% endif %}
+</form>
+
+{% if items %}
+<div class="items-grid">
+    {% for p in items %}
+        <div class="item-card {% if p.is_low_stock() %}low-stock{% endif %}">
+            <div class="item-header">
+                <div style="min-width: 240px;">
+                    <div class="item-title"><a href="{{ url_for('main.product_detail', prod_id=p.id) }}">{{ p.name }}</a></div>
+                    <div class="text-muted small">SKU: <code>{{ p.sku }}</code> · Unit: {{ p.unit }}</div>
+                </div>
+                <div class="item-meta">
+                    <span class="pill muted">{{ p.category.name if p.category else "Uncategorized" }}</span>
+                    {% if p.is_low_stock() %}
+                        <span class="pill warning">⚠️ Low stock</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="item-details">
+                <div class="item-detail"><strong>Stock</strong><span class="item-detail-value">{{ p.stock }}</span></div>
+                <div class="item-detail"><strong>Reorder Level</strong><span class="item-detail-value">{{ p.reorder_level }}</span></div>
+                <div class="item-detail"><strong>Price</strong><span class="item-detail-value">{{ p.price|currency }}</span></div>
+                <div class="item-detail"><strong>Supplier</strong><span class="item-detail-value">{{ p.supplier.name if p.supplier else "" }}</span></div>
+            </div>
+
+            <div class="item-actions">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.product_detail', prod_id=p.id) }}">👁️ View</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.product_edit', prod_id=p.id) }}">✏️ Edit</a>
+                <form class="d-inline" method="post" action="{{ url_for('main.product_delete', prod_id=p.id) }}" data-confirm="Delete this product?">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📦</div>
+        <h3>No products yet</h3>
+        <p>Add your first item to start tracking inventory.</p>
+        <div style="margin-top: 18px;">
+            <a class="btn btn-primary" href="{{ url_for('main.product_new') }}">➕ New Product</a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Categories · GrocerFlow{% endblock %}
+{% block content %}
+
+<div class="gf-pagehead">
+    <div>
+        <h2>Categories</h2>
+        <div class="sub">Organize products by category.</div>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.category_new') }}">➕ New Category</a>
+</div>
+
+<form class="filter-bar" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search categories...">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+    {% if q %}
+        <a class="btn btn-link" href="{{ url_for('main.categories') }}">Clear</a>
+    {% endif %}
+</form>
+
+{% if items %}
+<div class="items-grid">
+    {% for c in items %}
+        <div class="item-card">
+            <div class="item-header">
+                <div>
+                    <div class="item-title">{{ c.name }}</div>
+                    <div class="text-muted small">ID: <code>{{ c.id }}</code></div>
+                </div>
+                <div class="item-meta">
+                    <span class="pill muted">Category</span>
+                </div>
+            </div>
+
+            <div class="item-actions">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.category_edit', cat_id=c.id) }}">✏️ Edit</a>
+                <form class="d-inline" method="post" action="{{ url_for('main.category_delete', cat_id=c.id) }}" data-confirm="Delete this category?">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🗂️</div>
+        <h3>No categories yet</h3>
+        <p>Create categories to keep your products organized.</p>
+        <div style="margin-top: 18px;">
+            <a class="btn btn-primary" href="{{ url_for('main.category_new') }}">➕ New Category</a>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

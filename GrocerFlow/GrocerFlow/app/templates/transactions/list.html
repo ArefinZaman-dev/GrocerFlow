@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Transactions · GrocerFlow{% endblock %}
+{% block content %}
+
+<div class="gf-pagehead">
+    <div>
+        <h2>Transactions</h2>
+        <div class="sub">History of stock movements.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.export_transactions') }}">Export CSV</a>
+</div>
+
+<form class="filter-bar" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search by product name, SKU, or reference...">
+    <select class="form-select js-choice" name="type" data-placeholder="Type">
+        <option value="">All types</option>
+        <option value="IN" {% if tx_type == "IN" %}selected{% endif %}>IN</option>
+        <option value="OUT" {% if tx_type == "OUT" %}selected{% endif %}>OUT</option>
+    </select>
+    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+    {% if q or tx_type %}
+        <a class="btn btn-link" href="{{ url_for('main.transactions') }}">Clear</a>
+    {% endif %}
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if items %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>SKU</th>
+                        <th>Product</th>
+                        <th class="text-end">Qty</th>
+                        <th>Reference</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in items %}
+                        <tr>
+                            <td class="text-muted small">{{ tx.tx_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if tx.tx_type == 'IN' %}
+                                    <span class="badge text-bg-success">IN</span>
+                                {% else %}
+                                    <span class="badge text-bg-warning">OUT</span>
+                                {% endif %}
+                            </td>
+                            <td><code>{{ tx.product.sku }}</code></td>
+                            <td><a href="{{ url_for('main.product_detail', prod_id=tx.product.id) }}">{{ tx.product.name }}</a></td>
+                            <td class="text-end">{{ tx.quantity }}</td>
+                            <td class="text-muted">{{ tx.reference or "" }}</td>
+                            <td class="text-muted">{{ tx.note or "" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-muted">No transactions found.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

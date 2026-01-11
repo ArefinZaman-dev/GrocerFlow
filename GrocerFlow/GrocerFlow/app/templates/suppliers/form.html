@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · GrocerFlow{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <div class="text-muted">Add or update a supplier.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.suppliers') }}">Back</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.name.label(class_="form-label") }}
+                {{ form.name(class_="form-control") }}
+                {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    {{ form.phone.label(class_="form-label") }}
+                    {{ form.phone(class_="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.email.label(class_="form-label") }}
+                    {{ form.email(class_="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.address.label(class_="form-label") }}
+                    {{ form.address(class_="form-control") }}
+                </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit">{{ form.submit.label.text }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

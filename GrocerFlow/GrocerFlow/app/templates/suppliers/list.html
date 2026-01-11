@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Suppliers · GrocerFlow{% endblock %}
+{% block content %}
+
+<div class="gf-pagehead">
+    <div>
+        <h2>Suppliers</h2>
+        <div class="sub">Track where products come from.</div>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.supplier_new') }}">➕ New Supplier</a>
+</div>
+
+<form class="filter-bar" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search suppliers...">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+    {% if q %}
+        <a class="btn btn-link" href="{{ url_for('main.suppliers') }}">Clear</a>
+    {% endif %}
+</form>
+
+{% if items %}
+<div class="items-grid">
+    {% for s in items %}
+        <div class="item-card">
+            <div class="item-header">
+                <div>
+                    <div class="item-title">{{ s.name }}</div>
+                    <div class="text-muted small">ID: <code>{{ s.id }}</code></div>
+                </div>
+                <div class="item-meta">
+                    {% if s.email %}<span class="pill primary">✉️ {{ s.email }}</span>{% endif %}
+                    {% if s.phone %}<span class="pill muted">📞 {{ s.phone }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="item-details">
+                <div class="item-detail"><strong>Address</strong><span class="item-detail-value">{{ s.address or "" }}</span></div>
+                <div class="item-detail"><strong>Email</strong><span class="item-detail-value">{{ s.email or "" }}</span></div>
+                <div class="item-detail"><strong>Phone</strong><span class="item-detail-value">{{ s.phone or "" }}</span></div>
+            </div>
+
+            <div class="item-actions">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.supplier_edit', supp_id=s.id) }}">✏️ Edit</a>
+                <form class="d-inline" method="post" action="{{ url_for('main.supplier_delete', supp_id=s.id) }}" data-confirm="Delete this supplier?">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🚚</div>
+        <h3>No suppliers yet</h3>
+        <p>Add suppliers to track where products come from.</p>
+        <div style="margin-top: 18px;">
+            <a class="btn btn-primary" href="{{ url_for('main.supplier_new') }}">➕ New Supplier</a>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

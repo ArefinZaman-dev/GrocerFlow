@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · GrocerFlow{% endblock %}
+{% block content %}
+
+<div class="gf-pagehead">
+    <div>
+        <h2>Dashboard</h2>
+        <div class="sub">Quick overview of your inventory.</div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.export_inventory') }}">Export Inventory CSV</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.export_transactions') }}">Export Transactions CSV</a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <h3>Products</h3>
+        <p class="value">{{ total_products }}</p>
+        <div class="subtext">Total items in catalog</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🗂️</div>
+        <h3>Categories</h3>
+        <p class="value">{{ total_categories }}</p>
+        <div class="subtext">Ways you organize items</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🚚</div>
+        <h3>Suppliers</h3>
+        <p class="value">{{ total_suppliers }}</p>
+        <div class="subtext">Vendors in your directory</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0">Low Stock</h5>
+                    <a class="btn btn-sm btn-outline-danger" href="{{ url_for('main.products', low='1') }}">View all</a>
+                </div>
+                <hr>
+                {% if low_stock %}
+                    <div class="items-grid">
+                        {% for p in low_stock %}
+                        <div class="item-card low-stock">
+                            <div class="item-header">
+                                <div>
+                                    <div class="item-title"><a href="{{ url_for('main.product_detail', prod_id=p.id) }}">{{ p.name }}</a></div>
+                                    <div class="text-muted small">SKU: <code>{{ p.sku }}</code></div>
+                                </div>
+                                <div class="item-category">Low Stock</div>
+                            </div>
+                            <div class="item-details">
+                                <div class="item-detail"><strong>Stock</strong><span class="item-detail-value">{{ p.stock }}</span></div>
+                                <div class="item-detail"><strong>Reorder Level</strong><span class="item-detail-value">{{ p.reorder_level }}</span></div>
+                                {% if p.category %}
+                                <div class="item-detail"><strong>Category</strong><span class="item-detail-value">{{ p.category.name }}</span></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-muted">No low-stock items 🎉</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0">Recent Transactions</h5>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.transactions') }}">View all</a>
+                </div>
+                <hr>
+                {% if recent_txs %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Product</th>
+                                    <th class="text-end">Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in recent_txs %}
+                                <tr>
+                                    <td class="text-muted small">{{ tx.tx_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if tx.tx_type == 'IN' %}
+                                            <span class="badge text-bg-success">IN</span>
+                                        {% else %}
+                                            <span class="badge text-bg-warning">OUT</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><a href="{{ url_for('main.product_detail', prod_id=tx.product.id) }}">{{ tx.product.name }}</a></td>
+                                    <td class="text-end">{{ tx.quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-muted">No transactions yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

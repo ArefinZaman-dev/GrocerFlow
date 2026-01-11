@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }} · GrocerFlow{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">{{ item.name }}</h2>
+        <div class="text-muted">
+            <span class="me-2"><b>SKU:</b> <code>{{ item.sku }}</code></span>
+            <span class="me-2"><b>Unit:</b> {{ item.unit }}</span>
+            {% if item.category %}<span class="me-2"><b>Category:</b> {{ item.category.name }}</span>{% endif %}
+            {% if item.supplier %}<span class="me-2"><b>Supplier:</b> {{ item.supplier.name }}</span>{% endif %}
+        </div>
+    </div>
+    <div class="text-end">
+        <div class="text-muted">Current Stock</div>
+        <div class="display-6">
+            {% if item.is_low_stock() %}
+                <span class="badge badge-low">{{ item.stock }}</span>
+            {% else %}
+                <span class="badge text-bg-secondary">{{ item.stock }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-3">Stock Transaction</h5>
+                <form method="post" action="{{ url_for('main.product_transaction', prod_id=item.id) }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.tx_type.label(class_="form-label") }}
+                        {{ form.tx_type(class_="form-select js-choice", **{"data-placeholder":"Type"}) }}
+                        {% for e in form.tx_type.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.quantity.label(class_="form-label") }}
+                        {{ form.quantity(class_="form-control") }}
+                        {% for e in form.quantity.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.reference.label(class_="form-label") }}
+                        {{ form.reference(class_="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.note.label(class_="form-label") }}
+                        {{ form.note(class_="form-control", rows="3") }}
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">{{ form.submit.label.text }}</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('main.products') }}">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-3">Recent Transactions (last 50)</h5>
+                {% if txs %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th class="text-end">Qty</th>
+                                    <th>Reference</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in txs %}
+                                    <tr>
+                                        <td class="text-muted small">{{ tx.tx_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            {% if tx.tx_type == 'IN' %}
+                                                <span class="badge text-bg-success">IN</span>
+                                            {% else %}
+                                                <span class="badge text-bg-warning">OUT</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">{{ tx.quantity }}</td>
+                                        <td class="text-muted">{{ tx.reference or "" }}</td>
+                                        <td class="text-muted">{{ tx.note or "" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-muted">No transactions yet for this product.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
